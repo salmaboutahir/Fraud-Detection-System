@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard FraudShield | Violet Élégant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #F9FAFB;  /* blanc cassé */
+            font-family: 'Segoe UI', Roboto, system-ui;
+        }
+
+        /* Sidebar violet élégant */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #6D28D9 0%, #4C1D95 100%);
+            color: white;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(244,114,182,0.3);
+        }
+
+        .sidebar-header i {
+            font-size: 2.5rem;
+            background: #F472B6;  /* rose soft */
+            color: #6D28D9;
+            padding: 12px;
+            border-radius: 20px;
+        }
+
+        .sidebar-header h4 {
+            margin-top: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            color: #FBCFE8;
+        }
+
+        .nav-menu {
+            margin-top: 2rem;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            margin-bottom: 8px;
+            border-radius: 16px;
+            color: #F3E8FF;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.2rem;
+        }
+
+        .nav-item span {
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #F472B6;  /* rose soft */
+            color: #4C1D95;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* Contenu principal */
+        .main-content {
+            margin-left: 260px;
+            padding: 20px 30px;
+        }
+
+        /* Cartes KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: 0.2s;
+            border-left: 5px solid #6D28D9;  /* violet */
+        }
+
+        .kpi-icon {
+            width: 55px;
+            height: 55px;
+            background: #EDE9FE;  /* violet très clair */
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #6D28D9;
+        }
+
+        .kpi-details h6 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #374151;  /* gris */
+            margin-bottom: 4px;
+        }
+
+        .kpi-details .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1F2937;
+            line-height: 1.2;
+        }
+
+        /* Graphique */
+        .chart-container {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .chart-container h5 i {
+            color: #2563EB;  /* bleu confiance */
+        }
+
+        /* Tableau historique */
+        .history-container {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .table-custom th {
+            background: #F3E8FF;  /* violet très pâle */
+            color: #4C1D95;
+            font-weight: 700;
+            border-bottom: 2px solid #F472B6;
+        }
+
+        .badge-fraud {
+            background: #EF4444;  /* rouge */
+            color: white;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+        }
+
+        .badge-normal {
+            background: #10B981;  /* vert */
+            color: white;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+        }
+
+        .search-box {
+            border-radius: 40px;
+            border: 1px solid #F472B6;
+            padding: 6px 16px;
+            width: 250px;
+            outline: none;
+            background: #FFFFFF;
+        }
+
+        .btn-refresh {
+            background: #6D28D9;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 20px;
+            color: white;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background: #F472B6;
+            color: #4C1D95;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+            }
+            .sidebar-header h4, .sidebar-header p, .nav-item span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 80px;
+                padding: 15px;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar violet élégant -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-shield-haltered"></i>
+        <h4>FraudShield</h4>
+        <p>Anti-fraud AI</p>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item active" id="navDashboard">
+            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+        </div>
+        <div class="nav-item" id="navHistory">
+            <i class="fas fa-history"></i> <span>Historique</span>
+        </div>
+        <div class="nav-item" id="navModel">
+            <i class="fas fa-brain"></i> <span>Performance modèle</span>
+        </div>
+        <div class="nav-item" id="navBack" onclick="window.location.href='/'">
+            <i class="fas fa-arrow-left"></i> <span>Nouvelle analyse</span>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="main-content">
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-database"></i></div>
+            <div class="kpi-details">
+                <h6>Total transactions</h6>
+                <div class="value" id="totalTransactions">---</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="kpi-details">
+                <h6>Fraudes détectées</h6>
+                <div class="value text-danger" id="fraudCount">---</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="kpi-details">
+                <h6>Taux de fraude</h6>
+                <div class="value" id="fraudRate">---</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-robot"></i></div>
+            <div class="kpi-details">
+                <h6>AUC-ROC modèle</h6>
+                <div class="value" id="modelAuc">---</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphique -->
+    <div class="chart-container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5><i class="fas fa-chart-line me-2"></i>Évolution des fraudes (7 derniers jours)</h5>
+            <button class="btn-refresh" id="refreshBtn"><i class="fas fa-sync-alt"></i> Actualiser</button>
+        </div>
+        <canvas id="fraudTrendChart" height="90"></canvas>
+    </div>
+
+    <!-- Tableau historique -->
+    <div class="history-container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <h5><i class="fas fa-list-ul me-2"></i>Historique des prédictions (50 dernières)</h5>
+            <div>
+                <input type="text" id="searchHistory" class="search-box" placeholder="🔍 Filtrer par ID, montant, risque...">
+            </div>
+        </div>
+        <div style="max-height: 450px; overflow-y: auto;">
+            <table class="table table-hover table-custom align-middle">
+                <thead>
+                    <tr><th>ID</th><th>Date/Heure</th><th>Montant (€)</th><th>Probabilité</th><th>Risque</th><th>Statut</th></tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="6" class="text-center">Chargement en cours...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let trendChart = null;
+
+    async function loadKPIs() {
+        try {
+            const res = await fetch('/stats');
+            const data = await res.json();
+            document.getElementById('totalTransactions').innerText = data.total_predictions || 0;
+            document.getElementById('fraudCount').innerText = data.fraud_detected || 0;
+            const rate = data.fraud_rate || 0;
+            document.getElementById('fraudRate').innerText = `${rate.toFixed(2)}%`;
+            const auc = data.metrics?.['AUC-ROC'] || 0;
+            document.getElementById('modelAuc').innerText = auc.toFixed(4);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadHistory() {
+        try {
+            const res = await fetch('/history');
+            const logs = await res.json();
+            renderHistoryTable(logs);
+            updateChart(logs);
+        } catch (err) {
+            document.getElementById('historyBody').innerHTML = '<tr><td colspan="6" class="text-danger">Erreur chargement historique</td></tr>';
+        }
+    }
+
+    function renderHistoryTable(logs) {
+        const tbody = document.getElementById('historyBody');
+        if (!logs || logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucune prédiction</td></tr>';
+            return;
+        }
+        let html = '';
+        logs.forEach(log => {
+            const prob = log.probability || 0;
+            let riskBadge = '';
+            if (prob >= 70) riskBadge = '<span class="badge bg-danger">Élevé</span>';
+            else if (prob >= 30) riskBadge = '<span class="badge bg-warning text-dark">Modéré</span>';
+            else riskBadge = '<span class="badge bg-success">Faible</span>';
+            const statusBadge = log.is_fraud ? '<span class="badge-fraud">⚠️ Fraude</span>' : '<span class="badge-normal">✅ Normal</span>';
+            html += `<tr>
+                        <td>${log.id}</td>
+                        <td>${log.timestamp}</td>
+                        <td>${(log.amount || 0).toFixed(2)} €</td>
+                        <td>${prob.toFixed(1)}%</td>
+                        <td>${riskBadge}</td>
+                        <td>${statusBadge}</td>
+                     </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function updateChart(logs) {
+        if (!logs || logs.length === 0) return;
+        const last7Days = [];
+        const fraudCounts = [];
+        const today = new Date();
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(today.getDate() - i);
+            const dateStr = d.toISOString().slice(0,10);
+            last7Days.push(dateStr);
+            const count = logs.filter(l => {
+                const logDate = new Date(l.timestamp).toISOString().slice(0,10);
+                return logDate === dateStr && l.is_fraud === true;
+            }).length;
+            fraudCounts.push(count);
+        }
+        if (trendChart) trendChart.destroy();
+        const ctx = document.getElementById('fraudTrendChart').getContext('2d');
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: last7Days,
+                datasets: [{
+                    label: 'Nombre de fraudes',
+                    data: fraudCounts,
+                    borderColor: '#EF4444',  // rouge
+                    backgroundColor: 'rgba(239,68,68,0.05)',
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: '#F472B6', // rose soft
+                    pointBorderColor: '#6D28D9'     // violet
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+    }
+
+    function setupSearch() {
+        const searchInput = document.getElementById('searchHistory');
+        if (!searchInput) return;
+        searchInput.addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#historyBody tr');
+            rows.forEach(row => {
+                if (row.innerText.toLowerCase().includes(filter)) row.style.display = '';
+                else row.style.display = 'none';
+            });
+        });
+    }
+
+    function refreshAll() {
+        loadKPIs();
+        loadHistory();
+    }
+
+    setInterval(refreshAll, 30000);
+    document.getElementById('refreshBtn').addEventListener('click', refreshAll);
+    refreshAll();
+    setupSearch();
+
+    document.getElementById('navDashboard').addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+    document.getElementById('navHistory').addEventListener('click', () => document.querySelector('.history-container').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('navModel').addEventListener('click', () => document.querySelector('.chart-container').scrollIntoView({behavior:'smooth'}));
+</script>
+</body>
+</html>
